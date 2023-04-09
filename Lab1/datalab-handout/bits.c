@@ -254,13 +254,13 @@ int isGreater(int x, int y) {
   int b5 = b4 | (b4 >> 16);
 
   int msbs = ~(b5 >> 1) | (1 << 31); // Isolate up down to signficant bit
-  int msb = (msbs << !!b5) ^ msbs; // Isolate the signficant bit
+  int msb = (msbs << 1) ^ msbs; // Isolate the signficant bit
 
   int msb_is_sign = ((msb >> 31) & 1); // 1 if msb is the sign bit, 0 otherwise
 
   // If x has msb, then x > y
   // Unless bit is sign bit, in which case then flip
-  return (!!(x & msb)) ^ msb_is_sign;
+  return ((!(y & msb)) ^ msb_is_sign ) & b5;
 
   // -x = ~x + 1
   // ~x = -x - 1
