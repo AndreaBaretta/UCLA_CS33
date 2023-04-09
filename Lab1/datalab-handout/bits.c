@@ -1,8 +1,8 @@
-/* 
- * CS:APP Data Lab 
- * 
+/*
+ * CS:APP Data Lab
+ *
  * <Please put your name and userid here>
- * 
+ *
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
  *
@@ -10,7 +10,7 @@
  * compiler. You can still use printf for debugging without including
  * <stdio.h>, although you might get a compiler warning. In general,
  * it's not good practice to ignore compiler warnings, but in this
- * case it's OK.  
+ * case it's OK.
  */
 
 #if 0
@@ -129,7 +129,6 @@ NOTES:
  *      the correct answers.
  */
 
-
 #endif
 /* Copyright (C) 1991-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -167,7 +166,12 @@ NOTES:
  *   Rating: 1
  */
 int isTmax(int x) {
-  return !((~(x + 1)) ^ (x)) & !!((x+1) ^ 0);
+  /**
+   * If x is Tmax, then adding 1 overflows to Tmin, and negating brings you back
+   * to Tmax. Then, if ~(x+1) == x, x is Tmax. Unless it's 0, in which case,
+   * check for that too.
+   */
+  return !((~(x + 1)) ^ (x)) & !!((x + 1));
 }
 // 2
 /*
@@ -177,7 +181,10 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int evenBits(void) {
-  int block = 85; // 0b01010101 = 1 + 4 + 16 + 64 = 85
+  /**
+   * Hard-code the 0b01010101 byte, and repeatedly copy it into an empty int.
+   */
+  int block = 85;  // 0b01010101 = 1 + 4 + 16 + 64 = 85
   return (((((block << 8) + block) << 8) + block) << 8) + block;
 }
 // 3
@@ -189,6 +196,10 @@ int evenBits(void) {
  *   Rating: 2
  */
 int isEqual(int x, int y) {
+  /**
+   * xor will return all 0's if the operands are the same. Logically negate that
+   * to get 1 if x == y or 0 if they aren't.
+   */
   // xor - all 0's if the same
   // apply not to the result
   return !(x ^ y);
@@ -204,6 +215,11 @@ int isEqual(int x, int y) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
+  /**
+   * Remove the n least significant bits. If the remainder is a solid chunk of
+   * all 0's or all 1's, then it fits
+   */
+
   // If positive, interesting bit is first 1 bit
   // If negative, interesting bit is first 0 bit
   int neg_1 = ~0;
@@ -215,7 +231,7 @@ int fitsBits(int x, int n) {
   // (-1).
   int bit = block + 1;  // Then bit is either 0 or 1 iff x fits
 
-  return !((bit >> 1) ^ 0);
+  return !((bit >> 1));
 }
 // 5
 /*
@@ -226,6 +242,11 @@ int fitsBits(int x, int n) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
+  /**
+   * If x is true, !x == 0. If x is false, !x == 1. Then !x + (-1) == 0 or 1.
+   * Use this to create bitmask of all 1's for y if x is true or 0's if false,
+   * and negate bitmask for z.
+   */
   int bitmask = (!x) + (~0);  // All 1's if x is true, all 0's if x is false;
 
   return (bitmask & y) + (~bitmask & z);
@@ -239,7 +260,15 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isGreater(int x, int y) {
-  int difference = x ^ y; // First nonzero bit is different bit. Eveything else is unknown
+  /**
+   * Find all the different bits of x and y. Bit smear it, and isolate the most
+   * significant different bit between x and y. If x contains the most
+   * significant bit, then it greater than y. However, if the msb is the signed
+   * bit, then flip what the normal result would be. Additionally, if x == y,
+   * return false.
+   */
+  int difference =
+      x ^ y;  // First nonzero bit is different bit. Eveything else is unknown
 
   // Bit smear
   // x = 0b001xxxxx...
@@ -253,14 +282,14 @@ int isGreater(int x, int y) {
   int b4 = b3 | (b3 >> 8);
   int b5 = b4 | (b4 >> 16);
 
-  int msbs = ~(b5 >> 1) | (1 << 31); // Isolate up down to signficant bit
-  int msb = (msbs << 1) ^ msbs; // Isolate the signficant bit
+  int msbs = ~(b5 >> 1) | (1 << 31);  // Isolate up down to signficant bit
+  int msb = (msbs << 1) ^ msbs;       // Isolate the signficant bit
 
-  int msb_is_sign = ((msb >> 31) & 1); // 1 if msb is the sign bit, 0 otherwise
+  int msb_is_sign = ((msb >> 31) & 1);  // 1 if msb is the sign bit, 0 otherwise
 
   // If x has msb, then x > y
   // Unless bit is sign bit, in which case then flip
-  return ((!(y & msb)) ^ msb_is_sign ) & b5;
+  return ((!(y & msb)) ^ msb_is_sign) & b5;
 
   // -x = ~x + 1
   // ~x = -x - 1
@@ -280,6 +309,11 @@ int isGreater(int x, int y) {
  *   Rating: 3
  */
 int multFiveEighths(int x) {
+  /**
+   * Left shift and add to multiply x by 5. If x is negative, add 7, and finally
+   * divide with floor division by right shifting.
+   */
+
   int times5 = (x << 2) + x;
   int bias = (times5 >> 31) & 7;  // 0 if x positive, 7 if x negative
   return (times5 + bias) >> 3;
@@ -294,14 +328,18 @@ int multFiveEighths(int x) {
  *   Rating: 4
  */
 int logicalNeg(int x) {
+  /**
+   * Take two's complement of x only if it is positive. This results in in an
+   * integer that is either negative or 0. Then extract the sign bit.
+   */
+
   // Start by finding negative of absolute value of x (since positive absolute
   // value might overflow)
 
   // Take two's complement only if positive
   int bitmask = ~(x >> 31);
-  int complement = (x ^ bitmask) + (bitmask & 1); // Negative, only 0 if x is 0
+  int complement = (x ^ bitmask) + (bitmask & 1);  // Negative, only 0 if x is 0
   return (~(complement >> 31)) & 1;
-
 }
 // 9
 /*
@@ -314,10 +352,15 @@ int logicalNeg(int x) {
  *   Rating: 4
  */
 int twosComp2SignMag(int x) {
+  /**
+   * Take two's complement only if x is negative, and set the sign bit to what
+   * it was originally.
+   */
   // Take two's complement only if positive
   int bitmask = x >> 31;
   int addition = bitmask & 1;
-  int complement = (x ^ bitmask) + addition; // Always positive (unless x = Tmin)
+  int complement =
+      (x ^ bitmask) + addition;  // Always positive (unless x = Tmin)
 
   return complement + (addition << 31);
 }
@@ -331,8 +374,14 @@ int twosComp2SignMag(int x) {
  *   Rating: 4
  */
 int isPower2(int x) {
-  // If x is a power of 2, then x - 1 is a block of 0's followed by a block of 1s
-  // If x has more than one 1, then there will be digits in common between x and x-1
+  /**
+   * If x is a power of two, then subtracting x by 1 will result in many 0s
+   * followed by 1s, where x ^ x-1 == 0. If that is the case, x is a power of
+   * two. Additionally, check for x being 0 or negative.
+   */
+  // If x is a power of 2, then x - 1 is a block of 0's followed by a block of
+  // 1s If x has more than one 1, then there will be digits in common between x
+  // and x-1
   int is_negative = (x >> 31);
   int is_zero = !x;
   return !is_negative & !(x & (x + ~0)) & !is_zero;
