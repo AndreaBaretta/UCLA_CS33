@@ -1,0 +1,43 @@
+break *main+59
+  commands
+    jump *main+76
+    c
+  end
+break *main+89
+  commands
+    jump *main+94
+    c
+  end
+break *main+117
+  commands
+    jump *main+122
+    c
+  end
+break *main+145
+  commands
+    jump *main+150
+    c
+  end
+break *explode_bomb
+break *main+173
+  commands
+    jump *main+178
+    c
+  end
+break bomb.c:91
+  commands
+    jump *main+206
+    c
+  end
+break *main+229
+  commands
+    jump *main+234
+    c
+  end
+break bomb.c:103
+break explode_bomb
+watch *0x604810
+break phase_2
+break phase_6
+break *phase_2+44
+break *phase_6+238

@@ -1,0 +1,7 @@
+break explode_bomb
+break bomb.c:60
+  commands
+    jump *main+64
+    c
+  end
+break main
